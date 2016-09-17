@@ -86,6 +86,8 @@ git clone https://github.com/Hanover-CS/tutorial-version-control.git tutorial-gi
 ```
 This will download the entire state of the repository into that folder, and also set up remote repository links from our local clone to the GitHub repository. This is typically the easiest way around; create a repository in GitHub first, then clone it to your computer.
 
-### Status of index
+### Repository state
+
+A couple of tools help you with determining your current repository state.
 
 ## Standard GitHub utilities

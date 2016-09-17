@@ -72,7 +72,9 @@ Git is a command-line tool, to be precise a collection of such tools. We will de
 - `rebase` allows restructuring of the commit history and shifting branches so they have a new start location.
 - `cherry-pick` allows you to select a commit from anywhere and apply its effects to your current working directory.
 
-Some of these are more advanced. We will now examine them in more detail.
+Some of these are more advanced. We will now examine them in more detail. This section is broken into parts:
+
+- [Starting a repository](#starting-a-repository)
 
 ### Starting a repository
 
@@ -86,8 +88,28 @@ git clone https://github.com/Hanover-CS/tutorial-version-control.git tutorial-gi
 ```
 This will download the entire state of the repository into that folder, and also set up remote repository links from our local clone to the GitHub repository. This is typically the easiest way around; create a repository in GitHub first, then clone it to your computer.
 
-### Repository state
+### Reviewing repository state
 
 A couple of tools help you with determining your current repository state.
+
+TODO
+
+### Making Commits
+
+How to prepare content for commits, and making commits
+
+TODO
+
+### Working with remotes
+
+Seeing what remotes we have available, pushing and pulling from them.
+
+TODO
+
+### Managing branches
+
+Creating new branches, switching branches.
+
+TODO
 
 ## Standard GitHub utilities

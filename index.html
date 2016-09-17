@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Tutorial-version-control by Hanover-CS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Tutorial-version-control</h1>
+      <h2 class="project-tagline">Tutorial on using Git and GitHub for version control</h2>
+      <a href="https://github.com/Hanover-CS/tutorial-version-control" class="btn">View on GitHub</a>
+      <a href="https://github.com/Hanover-CS/tutorial-version-control/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Hanover-CS/tutorial-version-control/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="version-control-with-git-and-github" class="anchor" href="#version-control-with-git-and-github" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Version Control with Git and GitHub</h1>
+
+<p>Reference links:</p>
+
+<ul>
+<li><a href="https://git-scm.com/doc">Official Git documentation</a></li>
+<li><a href="https://guides.github.com/">GitHub guides</a></li>
+</ul>
+
+<h2>
+<a id="what-version-control-is-and-why-you-should-care" class="anchor" href="#what-version-control-is-and-why-you-should-care" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Version Control is and why you should care</h2>
+
+<p><strong>Version control</strong> stores a complete history of the codebase, including information about <em>what</em> changed, <em>when</em> and by <em>whom</em>. This has many advantages:</p>
+
+<ul>
+<li>Can revert changes that broke something.</li>
+<li>Can identify at what point in time something broke and what changes occured at that time. For each line of code you can literally find out when it was introduced and by whom.</li>
+<li>Can review someone's changes compared to what the code looked like before those changes.</li>
+<li>Can maintain multiple code branches, for example a release/fixes branch, an experimental branch that tries to change something on the server side, another experimental branch that tries to change the UI and so on.</li>
+<li>Can have multiple people contribute to the same code without worrying about overwriting each other's work.</li>
+<li>Can allow people to offer changes, and choose whether you will incorporate them or not. Makes it easy to review what those changes are.</li>
+</ul>
+
+<h2>
+<a id="git-github-and-related-concepts" class="anchor" href="#git-github-and-related-concepts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Git, GitHub and related concepts</h2>
+
+<ul>
+<li>
+<strong>Git</strong> is a program that works on your computer and maintains a repository of your program's evolution over time.
+
+<ul>
+<li>A <strong>repository</strong> is essentially a <em>managed</em> directory on your computer on which git maintains a project. All this information is stored in a hidden subdirectory called ".git".</li>
+<li>The fundamental building block of any version control system is a <strong>commit</strong>. It contains:
+
+<ul>
+<li>Information about which prior commit it is based off.</li>
+<li>A set of changes to the codebase, often called a <strong>diff</strong>.</li>
+<li>A timestamp of when these changes where committed.</li>
+<li>Author information about who committed these changes.</li>
+<li>A brief message written by the author about the commit.</li>
+<li>Commits in git are named via md5 hashes. So you'll see commits with names like <code>160d6693edd0fe306de0a703fe97a8b13908d68b</code>, and for almost all purposes you can use the first 5-6 characters from that as an identifier of the commit.</li>
+</ul>
+</li>
+<li>A <strong>branch</strong> is a series of commits, each based off the previous one. It is usually represented by the last commit in the chain, and you can follow the links from it back all the way to the start. The whole repository has in this sense a tree structure, with the leaves representing different branches.</li>
+<li>It is very common practice to start a new branch in order to explore some ideas, then discard it or merge it to the main branch as appropriate. Creating a new branch is cheap and easy to do.</li>
+<li>Git allows the notion of <strong>remote repositories</strong>, which establish a link between this repository and some repository that lives in another place (typically access via the web). This way you can have a "main repository" that all the individual team members' repositories connect to and update. There are various names for these remote repositories depending on use case, like "origin" or "upstream". We will discuss these further later.</li>
+</ul>
+</li>
+<li>
+<strong>GitHub</strong> is one of many websites that offer an ecosystem around git repositories. Many other similar websites have similar features as described here.
+
+<ul>
+<li>It gives you a place to remotely store your repositories, and then <strong>clone</strong> them into any machine that needs to use them.</li>
+<li>It allows project management via "issues tracker", with <em>issues</em>, <em>milestones</em> and <em>labels</em>.</li>
+<li>It facilitates project sharing and contributing to open source projects via <em>forks</em> and <em>pull requests</em>.</li>
+<li>It provides a Wiki for project documentation.</li>
+<li>It offers a way to automatically create a web page from a branch or folder in your project.</li>
+<li>Your GitHub page is effectively a part of your resume, and employers may look at it.</li>
+</ul>
+</li>
+<li>When working with a Git repository, there are three important concepts to keep in mind:
+
+<ul>
+<li>The <em>repository</em>, which holds all the different commits and branches of your project. Typically you are looking at a particular commit at any given time, and that is termed the <strong>HEAD</strong>.</li>
+<li>The <strong>working directory</strong> is the state of your current directory. Typically you started from a certain commit state at the HEAD of a branch. Then you changed some files, perhaps added some new files. You have not made any commits of these yet. All these constitute your working directory.</li>
+<li>The <strong>staging area</strong> or <strong>index</strong> is an intermediate state of your changes. Looking at all the files in your working directory that differ from the HEAD, you can choose which ones or which parts of ones to include into your next commit. You then place those into the index. This step is typically called "staging".</li>
+<li>When you create a commit, that commit is based off the staging area and it contains exactly the differences that you staged into the index.</li>
+<li>So a typical workflow when working on a particular local issue would be as follows:
+
+<ul>
+<li>Switch to an appropriate branch to work on. This turns the entire directory into the state that the head of that branch looks like. The HEAD points to this latest commit in that branch.</li>
+<li>Pull the most recent changes from the remote repository.</li>
+<li>Make changes to files, add new files etc.</li>
+<li>Review these changes, and stage some or all of those stages for commit.</li>
+<li>Make a commit. This creates a new commit based off of the commit at the HEAD, and also changes the HEAD to now point to our new commit.</li>
+<li>Rinse and repeat</li>
+<li>Push the various commits you made back to the remote repository.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="standard-git-operations" class="anchor" href="#standard-git-operations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Standard Git operations</h2>
+
+<p>Git is a command-line tool, to be precise a collection of such tools. We will describe those tools in this section. It is worth noting however, that there are various graphical interfaces that you can use to access most of these same functions. You can find many of those, many free, <a href="https://git-scm.com/downloads">here</a>. <a href="https://www.gitkraken.com/">GitKraken</a> in particular looks quite nice. We start with a brief list of the various "verbs":</p>
+
+<ul>
+<li>
+<code>init</code> starts a new repository.</li>
+<li>
+<code>clone</code> clones/copies a repository, typically to create a local copy of it. The intent is to directly contribute to the repository.</li>
+<li>
+<code>fork</code> copies a repository, with the intent of possibly advancing the project to a new direction. A forked repository does not directly communicate with its "source" repository, while a cloned repository does.</li>
+<li>
+<code>status</code> shows information about the current status of the repository, index, head and other information.</li>
+<li>
+<code>add</code> adds changes to files, or even completely new files, to the staging area/index. A precursor to committing.</li>
+<li>
+<code>remove</code> marks a file to be removed from the repository (and often deleted at the same time). The repository will stop tracking this file.</li>
+<li>
+<code>diff</code> shows you difference between specified commits of your repository and or the index or working directory. Used to determine what will be committed.</li>
+<li>
+<code>commit</code> creates a new commit.</li>
+<li>
+<code>log</code> shows a history of prior commits.</li>
+<li>
+<code>stash</code> allows you to temporarily "hide" changes you've made, and produce a clean working directory. Often needed when changing branches or performing other directory changes.</li>
+<li>
+<code>checkout</code> allows you to switch to a new branch or go to a specific commit. This changes what the working directory and index look like.</li>
+<li>
+<code>push</code> communicates your newly added local commits to a remote repository.</li>
+<li>
+<code>fetch</code> and <code>pull</code> retrieve commits from a remote repository.</li>
+<li>
+<code>merge</code> is used to merge a branch's changes into another branch.</li>
+<li>
+<code>rebase</code> allows restructuring of the commit history and shifting branches so they have a new start location.</li>
+<li>
+<code>cherry-pick</code> allows you to select a commit from anywhere and apply its effects to your current working directory.</li>
+</ul>
+
+<p>Some of these are more advanced. We will now examine them in more detail.</p>
+
+<h3>
+<a id="starting-a-repository" class="anchor" href="#starting-a-repository" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Starting a repository</h3>
+
+<p>There are two main ways to start a repository. You can turn any directory in your computer into a repository via <code>git init</code>:</p>
+
+<div class="highlight highlight-source-shell"><pre>git init</pre></div>
+
+<p>This will turn the current directory into a repository. The other way to start a repository is to <code>git clone</code> an existing repository. For instance the following line will clone the GitHub repository hosting this file into a directory called <code>tutorial-git</code>:</p>
+
+<div class="highlight highlight-source-shell"><pre>git clone https://github.com/Hanover-CS/tutorial-version-control.git tutorial-git</pre></div>
+
+<p>This will download the entire state of the repository into that folder, and also set up remote repository links from our local clone to the GitHub repository. This is typically the easiest way around; create a repository in GitHub first, then clone it to your computer.</p>
+
+<h3>
+<a id="repository-state" class="anchor" href="#repository-state" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Repository state</h3>
+
+<p>A couple of tools help you with determining your current repository state.</p>
+
+<h2>
+<a id="standard-github-utilities" class="anchor" href="#standard-github-utilities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Standard GitHub utilities</h2>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Hanover-CS/tutorial-version-control">Tutorial-version-control</a> is maintained by <a href="https://github.com/Hanover-CS">Hanover-CS</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>

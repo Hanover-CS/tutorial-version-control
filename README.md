@@ -5,6 +5,13 @@ Reference links:
 - [Official Git documentation](https://git-scm.com/doc)
 - [GitHub guides](https://guides.github.com/)
 
+## Table of contents
+
+- [What Version Control is and why you should care](#what-version-control-is-and-why-you-should-care)
+- [Standard Git operations](#standard-git-operations)
+- [Standard GitHub utilities](#standard-github-utilities)
+- [More advanced processes](#more-advanced-processes)
+
 ## What Version Control is and why you should care
 
 **Version control** stores a complete history of the codebase, including information about *what* changed, *when* and by *whom*. This has many advantages:
@@ -18,7 +25,7 @@ Reference links:
 
 ## Git, GitHub and related concepts
 
-- **Git** is a program that works on your computer and maintains a repository of your program's evolution over time.
+- **Git** is a program that works on your computer and maintains a repository of your program's evolution over time. It was initially created by Linus Torvalds, the creator of Linux, in order to host the Linux Kernel.
     - A **repository** is essentially a *managed* directory on your computer on which git maintains a project. All this information is stored in a hidden subdirectory called ".git".
     - The fundamental building block of any version control system is a **commit**. It contains:
         - Information about which prior commit it is based off.
@@ -66,6 +73,7 @@ Git is a command-line tool, to be precise a collection of such tools. We will de
 - `log` shows a history of prior commits.
 - `stash` allows you to temporarily "hide" changes you've made, and produce a clean working directory. Often needed when changing branches or performing other directory changes.
 - `checkout` allows you to switch to a new branch or go to a specific commit. This changes what the working directory and index look like.
+- `reset` can clear up the working directory and/or index, and bring them to some specific state.
 - `push` communicates your newly added local commits to a remote repository.
 - `fetch` and `pull` retrieve commits from a remote repository.
 - `merge` is used to merge a branch's changes into another branch.
@@ -75,6 +83,10 @@ Git is a command-line tool, to be precise a collection of such tools. We will de
 Some of these are more advanced. We will now examine them in more detail. This section is broken into parts:
 
 - [Starting a repository](#starting-a-repository)
+- [Reviewing repository state](#reviewing-repository-state)
+- [Making Commits](#making-commits)
+- [Managing branches](#managing-branches)
+- [Working with remotes](#working-with-remotes)
 
 ### Starting a repository
 
@@ -90,13 +102,147 @@ This will download the entire state of the repository into that folder, and also
 
 ### Reviewing repository state
 
-A couple of tools help you with determining your current repository state.
+There couple of tools help you with determining your current repository state.
 
-TODO
+#### Status
+
+First off is `git status`.
+```bash
+$ git status
+On branch gh-pages
+Your branch is up-to-date with 'origin/gh-pages'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+    modified:   README.md
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+    modified:   README.md
+```
+
+This tells us some key information:
+
+- We are currently working on the gh-pages branch, and HEAD points to the head of the gh-pages branch.
+- Our branch is related to a branch called `gh-pages` in the remote repository called `origin`, and we are currently in sync with it. On some occasions we might be ahead by some commits, meaning we've made some commits that we have not pushed to the remote yet, or the remote might be ahead meaning we have not updated our local repository with that remote information.
+- Next we have a list of files that have had changes that are *staged*. When we make a commit, these changes will be committed. In this case it seems we have modified a file, called `README.md`. git also tells us how we would "unstage" a change.
+- Next we have a list of files in the working directory that have some changes done to them, but we have not yet committed them. In this case it seems again that the `README.md` file also has some changes that have not been staged. This is an important option that git offers us: Only some of the changes in that file are scheduled for commit right now, and some others are staying put, waiting a later commit perhaps. You can choose parts of a file to stage.
+
+There is also a "short" version of the output:
+```bash
+$ git status -s
+MM README.md
+```
+The first M says that there are changes in this file that are staged, the second says that there are also changes that are not staged yet.
+
+#### Log
+
+`git log` shows us the history of recent logs. It has lots of options that you can find out by doing `git log --help` or by [reading the documentation](https://git-scm.com/docs/git-log). A particularly nice option is the "oneline" logs:
+```bash
+$ git log --oneline
+3fcd19b Create gh-pages branch via GitHub
+8e8ec9e Creating git sections
+31b4fa1 Create gh-pages branch via GitHub
+ad68152 Start on state section
+35362d7 Initial Commit
+```
+
+This simply tells us, in chronological order from the most recent to the oldest commit, what the commit's hash is and what the message is.
+
+You can do a lot more with log, like restrict it to only showing commits that changed a particular file:
+```bash
+$ git log --oneline -- README.md
+8e8ec9e Creating git sections
+ad68152 Start on state section
+35362d7 Initial Commit
+```
+
+#### Diff
+
+`git diff` allows us to visually see the differences between commits. Its output might look something like this:
+```bash
+$ git diff
+diff --git a/README.md b/README.md
+index 953c5ed..ab7f849 100644
+--- a/README.md
++++ b/README.md
+@@ -138,6 +138,30 @@ MM README.md
+ this is the stuff that was in the file before
+
+-this line was there before and is now removed. The minus in front tells us that.
++this is a new line we are adding.
++This too. And the empty line right below. The plus tells us these are new.
++
+ this line existed before
+```
+
+A lot of this information is not for human consumption, but you can see that it describes what was added and where in the file it was added: All the lines starting with a plus are new, all the ones starting with a minus are removed, and the others were there before. Most graphical program have a nice color-rich way of showing these differences.
 
 ### Making Commits
 
-How to prepare content for commits, and making commits
+#### Add
+
+You can stage files for commit via `git add`:
+
+```bash
+$ git add README.md
+```
+This line makes all the changes that were in `README.md` to the staging area, to be committed.
+
+If you want to add all the current changes from all files, you can use a dot to refer to the current directory:
+```bash
+$ git add .
+```
+
+Finally if you want to add parts of a file, you can do an *interactive add*, that brings up a mini interface. You would want to [read the documentation](https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging) on how that works.
+```bash
+$ git add -i
+```
+
+Many GUI clients will offer you a way to do that directly. We will be looking at how we can do this with GitKraken in class.
+
+#### Commit
+
+To commit the staged changes, we use `git commit`:
+```bash
+$ git commit -m "Enter message here"
+```
+You can also add the staged changes onto the last commit, instead of creating a new one. Very useful if you forgot to include a file:
+```bash
+$ git commit --amend
+```
+Be advised that this would change the last commit you have made. If you have already pushed/synced that commit to the remote repository, bad things can happen. *Never make changes to commits that have been synced to a remote!*
+
+#### Reset
+
+Resetting allows you to back out of a commit you made that you did not mean to make. It is in general a dangerous operation, and you should only use it if you are sure you know what you are doing. There are three kinds of resets:
+```bash
+$ git reset --mixed
+```
+This is the "mixed" reset, which is the default. This will "unstage" all files that were staged for commit. It does not change or delete the files, it simply no longer marks them as ready for commit. We say that it changes the *index*, but it does not change the *working directory*.
+
+```bash
+$ git reset --soft HEAD~
+```
+This is a "soft" reset. It does not change your index or your working directory. Files that were staged remain staged, and files that have changes keep those changes. But it does change the commit that is at the HEAD, to instead point to the commit called `HEAD~`, which is a notation for the commit before HEAD. Essentially this undoes the last commit. It does not lose the files that that last commit did. It simply puts them back to the "unstaged files" section. It would be as if you had not run `git commit` yet.
+
+```bash
+$ git reset --hard
+```
+This is a destructive step. It will completely remove what is in the index and working directory, and set them both to the HEAD (or another commit if you specify that at the end of the line). You will lose all the changes you have made. On rare occasions, this is the right thing to do. But it should be avoided. It is however useful if you wanted to "rewind" the current branch to a previous commit, because you realized you did not need it. The [documentation](https://git-scm.com/docs/git-reset) offers the following example:
+```bash
+$ git branch experiment
+$ git reset --hard HEAD~3
+$ git checkout experiment
+```
+So what happens here is that we realized that our last 3 commits should have gone in a new branch, called `experiment`, instead of our current branch. The first line creates that new branch based off the current commits. The second line resets our current branch to go back 3 commits. The third line then switches us to the `experiment` branch to continue working on that.
+
+### Managing branches
+
+Creating new branches, switching branches.
 
 TODO
 
@@ -106,10 +252,10 @@ Seeing what remotes we have available, pushing and pulling from them.
 
 TODO
 
-### Managing branches
-
-Creating new branches, switching branches.
+## Standard GitHub utilities
 
 TODO
 
-## Standard GitHub utilities
+## More advanced processes
+
+TODO

@@ -242,15 +242,130 @@ So what happens here is that we realized that our last 3 commits should have gon
 
 ### Managing branches
 
-Creating new branches, switching branches.
+There are a number of different operations on branches. A branch is nothing more than a chain of commits, marked by a pointer to the newest commit in the branch. As far as Git is concerned the only information in the branch is its name and that pointer to the newest commit.
 
-TODO
+#### Creating a branch
+
+We create a new branch via the `git branch` command:
+```bash
+$ git branch test
+```
+This creates a branch based off the current commit, and calls it test. You could then use `git checkout` to switch to it. We could create a new branch and switch to it all at once with the command:
+```bash
+$ git checkout -b test
+```
+You can have the branch based off a different commit by specifying it as a next argument.
+
+#### Switching to a branch
+
+We use `git checkout` to switch to a branch:
+```bash
+$ git checkout test
+```
+
+#### Viewing the different branches
+
+We can get information about the existing branches via the `-v` switch in `git branch`:
+```bash
+$ git branch -v
+* gh-pages 45e13b6 [ahead 1] Update readme
+  master   35362d7 Initial Commit
+  test     45e13b6 Update readme
+  ```
+The asterisk marks the current branch. We see the name of the branch, the latest commit in it, the message of that commit, and in brackets the possible relation of the branch with a remote branch.
+
+There is also a `-vv` option that shows us more about the relation to remote branches, along with the names of those branches.
+```bash
+$ git branch -vv
+* gh-pages 45e13b6 [origin/gh-pages: ahead 1] Update readme
+  master   35362d7 [origin/master: gone] Initial Commit
+  test     45e13b6 Update readme
+```
+
+#### Deleting a branch
+
+You can delete a branch via the `-d` switch:
+```bash
+$ git branch -d test
+```
+This does NOT actually delete any commits, it just removes the pointer to the commit that used to be at the front of the `test` branch. This may however result in commits being deleted, when git does its self-cleaning, which is a form of garbage collection: Any commits that are not reachable in some form starting from one of the branches are subject to deletion. Deleting a branch may put a number of commits in this situation, if the branch has not been merged into another branch.
+
+#### Merging
+
+There are a number of situations when merging is called for, where you have two branches that have diverged in some way and you want to bring them back together. There are two common situations:
+
+- A remote repository has been updated by someone else, and in the meantime you have prepared some commits to make. When you fetch the remote changes, you now have two divergent branches, and you need to somehow bring them back in order.
+- You created a branch to try some things out, and in the meantime also made some needed commits to the main branch. Now your changes in your offshoot branch are completed and you want to merge them into the main branch.
+
+This is a complicated situation, with many possible solutions, each with its tradeoff. We will discuss them extensively in the [advanced sections](#more-advanced-processes).
 
 ### Working with remotes
 
-Seeing what remotes we have available, pushing and pulling from them.
+Working with remote repositories is a key element of Git, which focuses on "distributed version control". Here we discuss these key elements.
 
-TODO
+A **remote repository** is actually a special part of your repository that contains a copy of another repository. You can fetch information from that other repository, and store them in the "remote repository", which is really like a branch in your local repository. You can then decide how best to merge those changes with the work you have been doing in your local repository.
+
+#### Viewing the remotes
+
+You can see the remote repositories you have access to via `git remote`:
+```bash
+$ git remote -v
+origin  https://github.com/Hanover-CS/tutorial-version-control.git (fetch)
+origin  https://github.com/Hanover-CS/tutorial-version-control.git (push)
+```
+You see here in our case that there is a remote called `origin`, which points to a GitHub repository. You will notice that there are two different addresses, one for fetching/pulling and one for pushing. While the addresses for those two are typically the same, in certain workflows they are not.
+
+You can also view the *branches* from the remote that you have decided to work with locally, via something like:
+```bash
+$ git remote show origin
+* remote origin
+  Fetch URL: https://github.com/Hanover-CS/tutorial-version-control.git
+  Push  URL: https://github.com/Hanover-CS/tutorial-version-control.git
+  HEAD branch: gh-pages
+  Remote branch:
+    gh-pages tracked
+  Local branches configured for 'git pull':
+    gh-pages merges with remote gh-pages
+    master   merges with remote master
+  Local ref configured for 'git push':
+    gh-pages pushes to gh-pages (fast-forwardable)
+```
+This gives us information about which branches are set up to work on `git pull` and which are set up to work with `git push`, along with some other information.
+
+The branches can be accessed with something like `origin/gh-pages` and in many ways behave like normal branches. We can for instance review the work in such a branch with:
+```bash
+$ git log origin/gh-pages --oneline
+```
+
+#### Tracking a remote branch
+
+If you want to start tracking a new remote branch, you can do so with:
+```bash
+$ git checkout --track origin/newbranchName
+```
+This will create a new branch called `newbranchName` and set it to track the remote branch, so we can easily push and pull.
+
+#### Pushing and Pulling
+
+In order to push your commits to the remote branch, you would use `git push`, with or without specifying the repository (it will use the one that the current branch is tracking if you don't specify) and also optionally specifying a specific branch to push:
+```bash
+$ git push origin master
+```
+This will only work if the remote branch isn't ahead of the local branch. If someone has pushed some changed to the remote in the meantime, you would be asked to fetch those changes first and incorporate them into your work, before pushing.
+
+In order to bring new changes in, you have to "fetch" the remote branch:
+```bash
+$ git fetch origin
+```
+This will update the "local" remote branch with any changes from the server, but it would not yet merge these changes into your local branch. In other words, this would update `origin/gh-pages` but not our `gh-pages` branch. That would require a further merge. What you want most of the time is a `git pull`:
+```bash
+$ git pull origin
+```
+This fetches and then merges. Oftentimes what you want is instead a rebase:
+```bash
+$ git pull --rebase
+```
+This is particularly useful: Say that you created some commits, and in the meantime someone pushed their changes to the remote repository. Your changes have nothing to do with theirs, so if you had pulled their changes first before creating your commits you would have had a nice linear structure to the commits. But instead you now have two diverging commits. What "rebasing" will do is fetch the remote changes, then "replay" your changes as if they had happened after those remote changes. This way you can maintain the linear structure of the commits. Rebasing is an important technique, and we will discuss it further in the [advanced sections](#more-advanced-processes).
 
 ## Standard GitHub utilities
 

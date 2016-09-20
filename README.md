@@ -4,6 +4,7 @@ Reference links:
 
 - [Official Git documentation](https://git-scm.com/doc)
 - [GitHub guides](https://guides.github.com/)
+- [Managing your work with GitHub](https://help.github.com/categories/managing-your-work-on-github/)
 
 ## Table of contents
 
@@ -369,8 +370,57 @@ This is particularly useful: Say that you created some commits, and in the meant
 
 ## Standard GitHub utilities
 
+In GitHub you review commits, and mostly create and discuss issues.
+
+- [Reviewing code and commits in GitHub](#reviewing-code-and-commits-in-github)
+- [GitHub Issues](#github-issues)
+- [GitHub Projects](#github-projects)
+
+You should create a GitHub account and treat it as part of your resume. Setting up an account is fairly straightforward and we will not cover it further.
+
+You will also likely need to generate SSH tokens, as described [here](https://help.github.com/articles/keeping-your-ssh-keys-and-application-access-tokens-safe/).
+
+GitHub has [extensive documentation](https://help.github.com/categories/managing-your-work-on-github/). We will only cover some basics here.
+
+When you look at a repository for a project in GitHub, the main page contains the a number of different tabs:
+
+- The **Code** tab allows us to browse the current state of the repository, as well as review the various commits that have occured so far, and look at the various different branches, where applicable.
+- The **Issues** tab allows us to create and identify issues that need to be addressed, and to commment and discuss them. Each issue comes with an associated number, and commits can be linked to those issues via an appropriate text in the commit message. Issues can be further organized by the use of **milestones** and **labels**.
+- **Pull Requests** are a critical part of collaborative work with GitHub, especially valuable when contributing to open source projects. When you start with someone's repository and take in a certain direction, you can then offer these changes back via a pull request. The author of the original repository can then decide whether to accept these or not, and a discussion can be had.
+- **Projects** are a relatively new feature in GitHub. Projects allow you to organize together issues and ad-hoc notes into custom columns, and manage the progress of the overall project that way.
+- An optional **Wiki** allows the creation of documentation in relation to the application you are developing. In many cases, other means of documentation are preferable.
+
+### Reviewing code and commits in GitHub
+
+The Code tab allows you to navigate your codebase. By default it shows what happens in the current branch, but you can change that. There are a number of actions you can take from the Code tab:
+
+- Navigating to any particular file, you can edit it right there in your web browser, and create a commit that way. It is in general to be avoided, but it is certainly possible.
+- You can create a new pull request based off the currently viewed branch.
+- You can browse the various commits, and either see how they differ from the previous state, or browse the entire repository as it was at that point in time.
+- When viewing a commit's difference from the previous state, you can also interject comments inbetween any lines, or comment on the overall commit, at the bottom of the page.
+
+### GitHub Issues
+
+The Issues tab allows us to work with issues and set tasks. To begin with you see a list of open issues, and you can filter and sort the list in various ways, as well as globally operate on multiple issues.
+
+- Clicking on an individual issue takes you to the issue's page.
+- An issue has a title and some main text, as well as a longer comment. There can be many "replies" to an issue, creating a discussion.
+- Commits can be linked to a particular issue by adding something like "ref #24" or "close #24" to the commit message. They will then appear as part of the issue discussion.
+- In the comment section for an issue you can use [GitHub-flavored Markdown](https://guides.github.com/features/mastering-markdown/), a simple and powerful text-based format style.
+- You can also create "task lists" that you can check off as you make progress on the issue.
+- Issues can be assigned one or more "labels" (bug, enhancement, or your own custom labels).
+- Issues can be assigned to a "milestone". Milestones simply collect tasks together and can have set deadlines for completion.
+- Issues can be assigned to a specific developer.
+- Issues can refer to other issues in the comments section.
+- You can catch another developer's attention by including something like `@skiadas` in a message. They will typically receive an email about it.
+
+### GitHub Projects
+
 TODO
 
 ## More advanced processes
+
+- Forks and pull requests
+- Rewriting history via rebase
 
 TODO

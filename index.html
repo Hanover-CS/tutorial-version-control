@@ -27,6 +27,17 @@
 <ul>
 <li><a href="https://git-scm.com/doc">Official Git documentation</a></li>
 <li><a href="https://guides.github.com/">GitHub guides</a></li>
+<li><a href="https://help.github.com/categories/managing-your-work-on-github/">Managing your work with GitHub</a></li>
+</ul>
+
+<h2>
+<a id="table-of-contents" class="anchor" href="#table-of-contents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Table of contents</h2>
+
+<ul>
+<li><a href="#what-version-control-is-and-why-you-should-care">What Version Control is and why you should care</a></li>
+<li><a href="#standard-git-operations">Standard Git operations</a></li>
+<li><a href="#standard-github-utilities">Standard GitHub utilities</a></li>
+<li><a href="#more-advanced-processes">More advanced processes</a></li>
 </ul>
 
 <h2>
@@ -48,7 +59,7 @@
 
 <ul>
 <li>
-<strong>Git</strong> is a program that works on your computer and maintains a repository of your program's evolution over time.
+<strong>Git</strong> is a program that works on your computer and maintains a repository of your program's evolution over time. It was initially created by Linus Torvalds, the creator of Linux, in order to host the Linux Kernel.
 
 <ul>
 <li>A <strong>repository</strong> is essentially a <em>managed</em> directory on your computer on which git maintains a project. All this information is stored in a hidden subdirectory called ".git".</li>
@@ -132,6 +143,8 @@
 <li>
 <code>checkout</code> allows you to switch to a new branch or go to a specific commit. This changes what the working directory and index look like.</li>
 <li>
+<code>reset</code> can clear up the working directory and/or index, and bring them to some specific state.</li>
+<li>
 <code>push</code> communicates your newly added local commits to a remote repository.</li>
 <li>
 <code>fetch</code> and <code>pull</code> retrieve commits from a remote repository.</li>
@@ -147,6 +160,10 @@
 
 <ul>
 <li><a href="#starting-a-repository">Starting a repository</a></li>
+<li><a href="#reviewing-repository-state">Reviewing repository state</a></li>
+<li><a href="#making-commits">Making Commits</a></li>
+<li><a href="#managing-branches">Managing branches</a></li>
+<li><a href="#working-with-remotes">Working with remotes</a></li>
 </ul>
 
 <h3>
@@ -165,33 +182,353 @@
 <h3>
 <a id="reviewing-repository-state" class="anchor" href="#reviewing-repository-state" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Reviewing repository state</h3>
 
-<p>A couple of tools help you with determining your current repository state.</p>
+<p>There couple of tools help you with determining your current repository state.</p>
 
-<p>TODO</p>
+<h4>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Status</h4>
+
+<p>First off is <code>git status</code>.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git status
+On branch gh-pages
+Your branch is up-to-date with <span class="pl-s"><span class="pl-pds">'</span>origin/gh-pages<span class="pl-pds">'</span></span>.
+
+Changes to be committed:
+  (use <span class="pl-s"><span class="pl-pds">"</span>git reset HEAD &lt;file&gt;...<span class="pl-pds">"</span></span> to unstage)
+
+    modified:   README.md
+
+Changes not staged <span class="pl-k">for</span> commit:
+  (use <span class="pl-s"><span class="pl-pds">"</span>git add &lt;file&gt;...<span class="pl-pds">"</span></span> to update what will be committed)
+  (use <span class="pl-s"><span class="pl-pds">"</span>git checkout -- &lt;file&gt;...<span class="pl-pds">"</span></span> to discard changes <span class="pl-k">in</span> working directory)
+
+    modified:   README.md</pre></div>
+
+<p>This tells us some key information:</p>
+
+<ul>
+<li>We are currently working on the gh-pages branch, and HEAD points to the head of the gh-pages branch.</li>
+<li>Our branch is related to a branch called <code>gh-pages</code> in the remote repository called <code>origin</code>, and we are currently in sync with it. On some occasions we might be ahead by some commits, meaning we've made some commits that we have not pushed to the remote yet, or the remote might be ahead meaning we have not updated our local repository with that remote information.</li>
+<li>Next we have a list of files that have had changes that are <em>staged</em>. When we make a commit, these changes will be committed. In this case it seems we have modified a file, called <code>README.md</code>. git also tells us how we would "unstage" a change.</li>
+<li>Next we have a list of files in the working directory that have some changes done to them, but we have not yet committed them. In this case it seems again that the <code>README.md</code> file also has some changes that have not been staged. This is an important option that git offers us: Only some of the changes in that file are scheduled for commit right now, and some others are staying put, waiting a later commit perhaps. You can choose parts of a file to stage.</li>
+</ul>
+
+<p>There is also a "short" version of the output:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git status -s
+MM README.md</pre></div>
+
+<p>The first M says that there are changes in this file that are staged, the second says that there are also changes that are not staged yet.</p>
+
+<h4>
+<a id="log" class="anchor" href="#log" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Log</h4>
+
+<p><code>git log</code> shows us the history of recent logs. It has lots of options that you can find out by doing <code>git log --help</code> or by <a href="https://git-scm.com/docs/git-log">reading the documentation</a>. A particularly nice option is the "oneline" logs:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git log --oneline
+3fcd19b Create gh-pages branch via GitHub
+8e8ec9e Creating git sections
+31b4fa1 Create gh-pages branch via GitHub
+ad68152 Start on state section
+35362d7 Initial Commit</pre></div>
+
+<p>This simply tells us, in chronological order from the most recent to the oldest commit, what the commit's hash is and what the message is.</p>
+
+<p>You can do a lot more with log, like restrict it to only showing commits that changed a particular file:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git log --oneline -- README.md
+8e8ec9e Creating git sections
+ad68152 Start on state section
+35362d7 Initial Commit</pre></div>
+
+<h4>
+<a id="diff" class="anchor" href="#diff" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Diff</h4>
+
+<p><code>git diff</code> allows us to visually see the differences between commits. Its output might look something like this:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git diff
+diff --git a/README.md b/README.md
+index 953c5ed..ab7f849 100644
+--- a/README.md
++++ b/README.md
+@@ -138,6 +138,30 @@ MM README.md
+ this is the stuff that was <span class="pl-k">in</span> the file before
+
+-this line was there before and is now removed. The minus <span class="pl-k">in</span> front tells us that.
++this is a new line we are adding.
++This too. And the empty line right below. The plus tells us these are new.
++
+ this line existed before</pre></div>
+
+<p>A lot of this information is not for human consumption, but you can see that it describes what was added and where in the file it was added: All the lines starting with a plus are new, all the ones starting with a minus are removed, and the others were there before. Most graphical program have a nice color-rich way of showing these differences.</p>
 
 <h3>
 <a id="making-commits" class="anchor" href="#making-commits" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Making Commits</h3>
 
-<p>How to prepare content for commits, and making commits</p>
+<h4>
+<a id="add" class="anchor" href="#add" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Add</h4>
 
-<p>TODO</p>
+<p>You can stage files for commit via <code>git add</code>:</p>
 
-<h3>
-<a id="working-with-remotes" class="anchor" href="#working-with-remotes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Working with remotes</h3>
+<div class="highlight highlight-source-shell"><pre>$ git add README.md</pre></div>
 
-<p>Seeing what remotes we have available, pushing and pulling from them.</p>
+<p>This line makes all the changes that were in <code>README.md</code> to the staging area, to be committed.</p>
 
-<p>TODO</p>
+<p>If you want to add all the current changes from all files, you can use a dot to refer to the current directory:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git add <span class="pl-c1">.</span></pre></div>
+
+<p>Finally if you want to add parts of a file, you can do an <em>interactive add</em>, that brings up a mini interface. You would want to <a href="https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging">read the documentation</a> on how that works.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git add -i</pre></div>
+
+<p>Many GUI clients will offer you a way to do that directly. We will be looking at how we can do this with GitKraken in class.</p>
+
+<h4>
+<a id="commit" class="anchor" href="#commit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Commit</h4>
+
+<p>To commit the staged changes, we use <code>git commit</code>:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git commit -m <span class="pl-s"><span class="pl-pds">"</span>Enter message here<span class="pl-pds">"</span></span></pre></div>
+
+<p>You can also add the staged changes onto the last commit, instead of creating a new one. Very useful if you forgot to include a file:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git commit --amend</pre></div>
+
+<p>Be advised that this would change the last commit you have made. If you have already pushed/synced that commit to the remote repository, bad things can happen. <em>Never make changes to commits that have been synced to a remote!</em></p>
+
+<h4>
+<a id="reset" class="anchor" href="#reset" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Reset</h4>
+
+<p>Resetting allows you to back out of a commit you made that you did not mean to make. It is in general a dangerous operation, and you should only use it if you are sure you know what you are doing. There are three kinds of resets:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git reset --mixed</pre></div>
+
+<p>This is the "mixed" reset, which is the default. This will "unstage" all files that were staged for commit. It does not change or delete the files, it simply no longer marks them as ready for commit. We say that it changes the <em>index</em>, but it does not change the <em>working directory</em>.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git reset --soft HEAD~</pre></div>
+
+<p>This is a "soft" reset. It does not change your index or your working directory. Files that were staged remain staged, and files that have changes keep those changes. But it does change the commit that is at the HEAD, to instead point to the commit called <code>HEAD~</code>, which is a notation for the commit before HEAD. Essentially this undoes the last commit. It does not lose the files that that last commit did. It simply puts them back to the "unstaged files" section. It would be as if you had not run <code>git commit</code> yet.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git reset --hard</pre></div>
+
+<p>This is a destructive step. It will completely remove what is in the index and working directory, and set them both to the HEAD (or another commit if you specify that at the end of the line). You will lose all the changes you have made. On rare occasions, this is the right thing to do. But it should be avoided. It is however useful if you wanted to "rewind" the current branch to a previous commit, because you realized you did not need it. The <a href="https://git-scm.com/docs/git-reset">documentation</a> offers the following example:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git branch experiment
+$ git reset --hard HEAD~3
+$ git checkout experiment</pre></div>
+
+<p>So what happens here is that we realized that our last 3 commits should have gone in a new branch, called <code>experiment</code>, instead of our current branch. The first line creates that new branch based off the current commits. The second line resets our current branch to go back 3 commits. The third line then switches us to the <code>experiment</code> branch to continue working on that.</p>
 
 <h3>
 <a id="managing-branches" class="anchor" href="#managing-branches" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Managing branches</h3>
 
-<p>Creating new branches, switching branches.</p>
+<p>There are a number of different operations on branches. A branch is nothing more than a chain of commits, marked by a pointer to the newest commit in the branch. As far as Git is concerned the only information in the branch is its name and that pointer to the newest commit.</p>
+
+<h4>
+<a id="creating-a-branch" class="anchor" href="#creating-a-branch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating a branch</h4>
+
+<p>We create a new branch via the <code>git branch</code> command:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git branch <span class="pl-c1">test</span></pre></div>
+
+<p>This creates a branch based off the current commit, and calls it test. You could then use <code>git checkout</code> to switch to it. We could create a new branch and switch to it all at once with the command:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git checkout -b <span class="pl-c1">test</span></pre></div>
+
+<p>You can have the branch based off a different commit by specifying it as a next argument.</p>
+
+<h4>
+<a id="switching-to-a-branch" class="anchor" href="#switching-to-a-branch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Switching to a branch</h4>
+
+<p>We use <code>git checkout</code> to switch to a branch:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git checkout <span class="pl-c1">test</span></pre></div>
+
+<h4>
+<a id="viewing-the-different-branches" class="anchor" href="#viewing-the-different-branches" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Viewing the different branches</h4>
+
+<p>We can get information about the existing branches via the <code>-v</code> switch in <code>git branch</code>:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git branch -v
+<span class="pl-k">*</span> gh-pages 45e13b6 [ahead 1] Update readme
+  master   35362d7 Initial Commit
+  <span class="pl-c1">test</span>     45e13b6 Update readme</pre></div>
+
+<p>The asterisk marks the current branch. We see the name of the branch, the latest commit in it, the message of that commit, and in brackets the possible relation of the branch with a remote branch.</p>
+
+<p>There is also a <code>-vv</code> option that shows us more about the relation to remote branches, along with the names of those branches.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git branch -vv
+<span class="pl-k">*</span> gh-pages 45e13b6 [origin/gh-pages: ahead 1] Update readme
+  master   35362d7 [origin/master: gone] Initial Commit
+  <span class="pl-c1">test</span>     45e13b6 Update readme</pre></div>
+
+<h4>
+<a id="deleting-a-branch" class="anchor" href="#deleting-a-branch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deleting a branch</h4>
+
+<p>You can delete a branch via the <code>-d</code> switch:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git branch -d <span class="pl-c1">test</span></pre></div>
+
+<p>This does NOT actually delete any commits, it just removes the pointer to the commit that used to be at the front of the <code>test</code> branch. This may however result in commits being deleted, when git does its self-cleaning, which is a form of garbage collection: Any commits that are not reachable in some form starting from one of the branches are subject to deletion. Deleting a branch may put a number of commits in this situation, if the branch has not been merged into another branch.</p>
+
+<h4>
+<a id="merging" class="anchor" href="#merging" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Merging</h4>
+
+<p>There are a number of situations when merging is called for, where you have two branches that have diverged in some way and you want to bring them back together. There are two common situations:</p>
+
+<ul>
+<li>A remote repository has been updated by someone else, and in the meantime you have prepared some commits to make. When you fetch the remote changes, you now have two divergent branches, and you need to somehow bring them back in order.</li>
+<li>You created a branch to try some things out, and in the meantime also made some needed commits to the main branch. Now your changes in your offshoot branch are completed and you want to merge them into the main branch.</li>
+</ul>
+
+<p>This is a complicated situation, with many possible solutions, each with its tradeoff. We will discuss them extensively in the <a href="#more-advanced-processes">advanced sections</a>.</p>
+
+<h3>
+<a id="working-with-remotes" class="anchor" href="#working-with-remotes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Working with remotes</h3>
+
+<p>Working with remote repositories is a key element of Git, which focuses on "distributed version control". Here we discuss these key elements.</p>
+
+<p>A <strong>remote repository</strong> is actually a special part of your repository that contains a copy of another repository. You can fetch information from that other repository, and store them in the "remote repository", which is really like a branch in your local repository. You can then decide how best to merge those changes with the work you have been doing in your local repository.</p>
+
+<h4>
+<a id="viewing-the-remotes" class="anchor" href="#viewing-the-remotes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Viewing the remotes</h4>
+
+<p>You can see the remote repositories you have access to via <code>git remote</code>:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git remote -v
+origin  https://github.com/Hanover-CS/tutorial-version-control.git (fetch)
+origin  https://github.com/Hanover-CS/tutorial-version-control.git (push)</pre></div>
+
+<p>You see here in our case that there is a remote called <code>origin</code>, which points to a GitHub repository. You will notice that there are two different addresses, one for fetching/pulling and one for pushing. While the addresses for those two are typically the same, in certain workflows they are not.</p>
+
+<p>You can also view the <em>branches</em> from the remote that you have decided to work with locally, via something like:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git remote show origin
+<span class="pl-k">*</span> remote origin
+  Fetch URL: https://github.com/Hanover-CS/tutorial-version-control.git
+  Push  URL: https://github.com/Hanover-CS/tutorial-version-control.git
+  HEAD branch: gh-pages
+  Remote branch:
+    gh-pages tracked
+  Local branches configured <span class="pl-k">for</span> <span class="pl-s"><span class="pl-pds">'</span>git pull<span class="pl-pds">'</span></span>:
+    gh-pages merges with remote gh-pages
+    master   merges with remote master
+  Local ref configured <span class="pl-k">for</span> <span class="pl-s"><span class="pl-pds">'</span>git push<span class="pl-pds">'</span></span>:
+    gh-pages pushes to gh-pages (fast-forwardable)</pre></div>
+
+<p>This gives us information about which branches are set up to work on <code>git pull</code> and which are set up to work with <code>git push</code>, along with some other information.</p>
+
+<p>The branches can be accessed with something like <code>origin/gh-pages</code> and in many ways behave like normal branches. We can for instance review the work in such a branch with:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git log origin/gh-pages --oneline</pre></div>
+
+<h4>
+<a id="tracking-a-remote-branch" class="anchor" href="#tracking-a-remote-branch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tracking a remote branch</h4>
+
+<p>If you want to start tracking a new remote branch, you can do so with:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git checkout --track origin/newbranchName</pre></div>
+
+<p>This will create a new branch called <code>newbranchName</code> and set it to track the remote branch, so we can easily push and pull.</p>
+
+<h4>
+<a id="pushing-and-pulling" class="anchor" href="#pushing-and-pulling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Pushing and Pulling</h4>
+
+<p>In order to push your commits to the remote branch, you would use <code>git push</code>, with or without specifying the repository (it will use the one that the current branch is tracking if you don't specify) and also optionally specifying a specific branch to push:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git push origin master</pre></div>
+
+<p>This will only work if the remote branch isn't ahead of the local branch. If someone has pushed some changed to the remote in the meantime, you would be asked to fetch those changes first and incorporate them into your work, before pushing.</p>
+
+<p>In order to bring new changes in, you have to "fetch" the remote branch:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git fetch origin</pre></div>
+
+<p>This will update the "local" remote branch with any changes from the server, but it would not yet merge these changes into your local branch. In other words, this would update <code>origin/gh-pages</code> but not our <code>gh-pages</code> branch. That would require a further merge. What you want most of the time is a <code>git pull</code>:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git pull origin</pre></div>
+
+<p>This fetches and then merges. Oftentimes what you want is instead a rebase:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ git pull --rebase</pre></div>
+
+<p>This is particularly useful: Say that you created some commits, and in the meantime someone pushed their changes to the remote repository. Your changes have nothing to do with theirs, so if you had pulled their changes first before creating your commits you would have had a nice linear structure to the commits. But instead you now have two diverging commits. What "rebasing" will do is fetch the remote changes, then "replay" your changes as if they had happened after those remote changes. This way you can maintain the linear structure of the commits. Rebasing is an important technique, and we will discuss it further in the <a href="#more-advanced-processes">advanced sections</a>.</p>
+
+<h2>
+<a id="standard-github-utilities" class="anchor" href="#standard-github-utilities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Standard GitHub utilities</h2>
+
+<p>In GitHub you review commits, and mostly create and discuss issues.</p>
+
+<ul>
+<li><a href="#reviewing-code-and-commits-in-github">Reviewing code and commits in GitHub</a></li>
+<li><a href="#github-issues">GitHub Issues</a></li>
+<li><a href="#github-projects">GitHub Projects</a></li>
+</ul>
+
+<p>You should create a GitHub account and treat it as part of your resume. Setting up an account is fairly straightforward and we will not cover it further.</p>
+
+<p>You will also likely need to generate SSH tokens, as described <a href="https://help.github.com/articles/keeping-your-ssh-keys-and-application-access-tokens-safe/">here</a>.</p>
+
+<p>GitHub has <a href="https://help.github.com/categories/managing-your-work-on-github/">extensive documentation</a>. We will only cover some basics here.</p>
+
+<p>When you look at a repository for a project in GitHub, the main page contains the a number of different tabs:</p>
+
+<ul>
+<li>The <strong>Code</strong> tab allows us to browse the current state of the repository, as well as review the various commits that have occured so far, and look at the various different branches, where applicable.</li>
+<li>The <strong>Issues</strong> tab allows us to create and identify issues that need to be addressed, and to commment and discuss them. Each issue comes with an associated number, and commits can be linked to those issues via an appropriate text in the commit message. Issues can be further organized by the use of <strong>milestones</strong> and <strong>labels</strong>.</li>
+<li>
+<strong>Pull Requests</strong> are a critical part of collaborative work with GitHub, especially valuable when contributing to open source projects. When you start with someone's repository and take in a certain direction, you can then offer these changes back via a pull request. The author of the original repository can then decide whether to accept these or not, and a discussion can be had.</li>
+<li>
+<strong>Projects</strong> are a relatively new feature in GitHub. Projects allow you to organize together issues and ad-hoc notes into custom columns, and manage the progress of the overall project that way.</li>
+<li>An optional <strong>Wiki</strong> allows the creation of documentation in relation to the application you are developing. In many cases, other means of documentation are preferable.</li>
+</ul>
+
+<h3>
+<a id="reviewing-code-and-commits-in-github" class="anchor" href="#reviewing-code-and-commits-in-github" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Reviewing code and commits in GitHub</h3>
+
+<p>The Code tab allows you to navigate your codebase. By default it shows what happens in the current branch, but you can change that. There are a number of actions you can take from the Code tab:</p>
+
+<ul>
+<li>Navigating to any particular file, you can edit it right there in your web browser, and create a commit that way. It is in general to be avoided, but it is certainly possible.</li>
+<li>You can create a new pull request based off the currently viewed branch.</li>
+<li>You can browse the various commits, and either see how they differ from the previous state, or browse the entire repository as it was at that point in time.</li>
+<li>When viewing a commit's difference from the previous state, you can also interject comments inbetween any lines, or comment on the overall commit, at the bottom of the page.</li>
+</ul>
+
+<h3>
+<a id="github-issues" class="anchor" href="#github-issues" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GitHub Issues</h3>
+
+<p>The Issues tab allows us to work with issues and set tasks. To begin with you see a list of open issues, and you can filter and sort the list in various ways, as well as globally operate on multiple issues.</p>
+
+<ul>
+<li>Clicking on an individual issue takes you to the issue's page.</li>
+<li>An issue has a title and some main text, as well as a longer comment. There can be many "replies" to an issue, creating a discussion.</li>
+<li>Commits can be linked to a particular issue by adding something like "ref #24" or "close #24" to the commit message. They will then appear as part of the issue discussion.</li>
+<li>In the comment section for an issue you can use <a href="https://guides.github.com/features/mastering-markdown/">GitHub-flavored Markdown</a>, a simple and powerful text-based format style.</li>
+<li>You can also create "task lists" that you can check off as you make progress on the issue.</li>
+<li>Issues can be assigned one or more "labels" (bug, enhancement, or your own custom labels).</li>
+<li>Issues can be assigned to a "milestone". Milestones simply collect tasks together and can have set deadlines for completion.</li>
+<li>Issues can be assigned to a specific developer.</li>
+<li>Issues can refer to other issues in the comments section.</li>
+<li>You can catch another developer's attention by including something like <code>@skiadas</code> in a message. They will typically receive an email about it.</li>
+</ul>
+
+<h3>
+<a id="github-projects" class="anchor" href="#github-projects" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GitHub Projects</h3>
 
 <p>TODO</p>
 
 <h2>
-<a id="standard-github-utilities" class="anchor" href="#standard-github-utilities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Standard GitHub utilities</h2>
+<a id="more-advanced-processes" class="anchor" href="#more-advanced-processes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>More advanced processes</h2>
+
+<ul>
+<li>Forks and pull requests</li>
+<li>Rewriting history via rebase</li>
+</ul>
+
+<p>TODO</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/Hanover-CS/tutorial-version-control">Tutorial-version-control</a> is maintained by <a href="https://github.com/Hanover-CS">Hanover-CS</a>.</span>
